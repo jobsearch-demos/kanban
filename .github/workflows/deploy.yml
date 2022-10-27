@@ -1,0 +1,21 @@
+name: Deploy
+
+# Only trigger, when the build workflow succeeded
+on:
+  workflow_run:
+    workflows: ["Run unit tests"]
+    types: [completed]
+jobs:
+  deploy:
+    name: Deploy to server
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ssh to the server and deploy app
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: cd kanban && git pull origin master && make stop-prod && make run-build-prod
